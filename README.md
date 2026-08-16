@@ -1,2 +1,0 @@
-# cylo-cotizador
-interno
