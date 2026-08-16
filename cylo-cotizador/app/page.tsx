@@ -92,8 +92,8 @@ export default function Home() {
                   <Image 
                     src={getCloudinaryUrl(p.codigo)} 
                     alt={p.producto || 'Producto CYLO'} 
-                    layout="fill"
-                    objectFit="contain"
+                    fill
+                    style={{ objectFit: 'contain' }}
                     unoptimized={true}
                   />
                 </div>
