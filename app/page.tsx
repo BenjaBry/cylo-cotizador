@@ -426,14 +426,6 @@ export default function Home() {
         shippingType={shippingType}
         cotNumber={cotNumber}
       />
-      
-      {/* GLOBAL STYLES */}
-      <style jsx global>{`
-        .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
-        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
-        .dark .custom-scrollbar::-webkit-scrollbar-thumb { background: #475569; }
-      `}</style>
     </div>
   );
 }
