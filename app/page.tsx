@@ -70,9 +70,8 @@ export default function Home() {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
 
-  // --- DATA PROCESSING ---
   const productos: Producto[] = useMemo(() => {
-    return productosData.map(p => ({
+    return (productosData as any[]).map(p => ({
       ...p,
       // SIMULACIÓN DE COLUMNAS HASTA QUE SE ACTUALICE EL EXCEL
       precio_interior: p.precio_interior || p.precio_unitario,
