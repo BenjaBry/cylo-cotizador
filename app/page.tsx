@@ -1,7 +1,7 @@
 'use client';
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
-import { Search, Plus, Trash2, FileDown, LogOut, Package } from 'lucide-react';
+import { Search, Plus, Trash2, FileDown, LogOut, Package, X } from 'lucide-react';
 import productosData from '@/data/productos.json';
 import { generatePDF } from '@/utils/generatePDF';
 
@@ -11,6 +11,7 @@ export default function Home() {
   const [productos, setProductos] = useState<any[]>([]);
   const [cart, setCart] = useState<{producto: any, cantidad: number}[]>([]);
   const [search, setSearch] = useState('');
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
   
   // Client Info State
   const [client, setClient] = useState({
@@ -164,14 +165,17 @@ export default function Home() {
                 {filteredProducts.slice(0, 100).map((p, i) => (
                   <tr key={i} className="hover:bg-blue-50/50 transition-colors group">
                     <td className="px-4 py-2">
-                      <div className="w-10 h-10 bg-white border border-gray-200 rounded flex items-center justify-center overflow-hidden relative">
+                      <div 
+                        className="w-10 h-10 bg-white border border-gray-200 rounded flex items-center justify-center overflow-hidden relative cursor-pointer"
+                        onClick={() => setSelectedImage(getCloudinaryUrl(p.codigo, p.producto))}
+                      >
                         <Image 
                           src={getCloudinaryUrl(p.codigo, p.producto)} 
                           alt="IMG" 
                           fill
                           style={{ objectFit: 'contain' }}
                           unoptimized={true}
-                          className="opacity-90 group-hover:opacity-100"
+                          className="opacity-90 group-hover:opacity-100 transition-opacity"
                         />
                       </div>
                     </td>
@@ -288,6 +292,32 @@ export default function Home() {
         </div>
 
       </div>
+
+      {/* Lightbox Modal */}
+      {selectedImage && (
+        <div 
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm transition-opacity"
+          onClick={() => setSelectedImage(null)}
+        >
+          <div className="relative max-w-4xl max-h-[90vh] w-full p-4 flex flex-col items-center justify-center" onClick={(e) => e.stopPropagation()}>
+            <button 
+              onClick={() => setSelectedImage(null)}
+              className="absolute top-0 right-4 p-2 bg-white/10 hover:bg-white/20 text-white rounded-full transition-colors"
+            >
+              <X className="w-6 h-6" />
+            </button>
+            <div className="relative w-full aspect-square md:aspect-[4/3] bg-white rounded-xl overflow-hidden shadow-2xl">
+              <Image 
+                src={selectedImage}
+                alt="Vista Ampliada"
+                fill
+                style={{ objectFit: 'contain' }}
+                unoptimized={true}
+              />
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
