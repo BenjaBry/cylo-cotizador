@@ -16,6 +16,24 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="es">
+      <head>
+        <script src="https://cdn.tailwindcss.com"></script>
+        <script dangerouslySetInnerHTML={{
+          __html: `
+            tailwind.config = {
+              darkMode: 'class',
+              theme: {
+                extend: {
+                  colors: {
+                    'cylo-dark': '#1a202c',
+                    'cylo-accent': '#3182ce',
+                  }
+                }
+              }
+            }
+          `
+        }} />
+      </head>
       <body className={inter.className}>{children}</body>
     </html>
   );
