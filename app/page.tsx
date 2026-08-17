@@ -257,7 +257,6 @@ export default function Home() {
               <LogOut className="w-5 h-5" />
             </button>
           </div>
-        </div>
       </header>
 
       {/* MAIN LAYOUT */}
@@ -279,7 +278,6 @@ export default function Home() {
                 </button>
               ))}
             </div>
-          </div>
 
           {/* Table */}
           <div className="flex-1 overflow-auto custom-scrollbar relative">
