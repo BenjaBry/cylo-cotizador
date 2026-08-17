@@ -122,7 +122,8 @@ export const PdfTemplate: React.FC<PdfTemplateProps> = ({ client, cart, subtotal
                 <thead>
                   <tr className="border-b-2 border-slate-900 text-xs uppercase tracking-wider text-slate-900">
                     <th className="py-3 px-2 font-black w-[15%]">SKU</th>
-                    <th className="py-3 px-2 font-black w-[45%]">Producto</th>
+                    <th className="py-3 px-2 font-black w-[35%]">Producto</th>
+                    <th className="py-3 px-2 text-center font-black w-[10%]">U/Caja</th>
                     <th className="py-3 px-2 text-center font-black w-[10%]">Cant.</th>
                     <th className="py-3 px-2 text-right font-black w-[15%]">Precio</th>
                     <th className="py-3 px-2 text-right font-black w-[15%]">Total</th>
@@ -133,6 +134,7 @@ export const PdfTemplate: React.FC<PdfTemplateProps> = ({ client, cart, subtotal
                     <tr key={idx}>
                       <td className="py-4 px-2 font-mono text-xs text-slate-500">{item.producto.codigo}</td>
                       <td className="py-4 px-2 font-semibold text-slate-800 text-xs pr-4">{item.producto.producto}</td>
+                      <td className="py-4 px-2 text-center text-xs text-slate-500">{item.producto.unidades || 1}</td>
                       <td className="py-4 px-2 text-center font-medium text-slate-700">{item.cantidad}</td>
                       <td className="py-4 px-2 text-right text-slate-600">Q{item.unitPrice.toFixed(2)}</td>
                       <td className="py-4 px-2 text-right font-bold text-slate-900">Q{(item.unitPrice * item.cantidad).toFixed(2)}</td>
