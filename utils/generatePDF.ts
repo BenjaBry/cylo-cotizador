@@ -52,19 +52,22 @@ export const generatePDF = async (elementId: string, fileName: string) => {
     let position = 0;
     const pageHeight = pdf.internal.pageSize.getHeight();
     
-    if (pdfHeight > pageHeight) {
+    // Tolerancia de 2mm para evitar crear una página en blanco por un redondeo de subpíxeles
+    if (pdfHeight > pageHeight + 2) {
        // Simple multipage logic
        let heightLeft = pdfHeight;
        while (heightLeft > 0) {
          pdf.addImage(imgData, 'JPEG', 0, position, pdfWidth, pdfHeight);
          heightLeft -= pageHeight;
          position -= pageHeight;
-         if (heightLeft > 0) {
+         // Solo agregamos página nueva si sobraron más de 2mm (para no hacer hojas en blanco)
+         if (heightLeft > 2) {
            pdf.addPage();
          }
        }
     } else {
-       pdf.addImage(imgData, 'JPEG', 0, 0, pdfWidth, pdfHeight);
+       // Si es casi igual a una página (A4), forzamos que quepa exacto para evitar bordes blancos extraños
+       pdf.addImage(imgData, 'JPEG', 0, 0, pdfWidth, pageHeight);
     }
 
     pdf.save(`${fileName}.pdf`);
