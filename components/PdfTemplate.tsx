@@ -21,9 +21,9 @@ export const PdfTemplate: React.FC<PdfTemplateProps> = ({ client, cart, subtotal
   };
 
   return (
-    <div id="pdf-template">
-      {/* Contenedor estricto A4 Vertical (794x1123px a 96DPI) */}
-      <div className="w-[794px] min-h-[1123px] bg-white text-slate-800 font-sans mx-auto shadow-2xl flex flex-col relative overflow-hidden">
+    <div id="pdf-template" className="flex flex-col gap-8">
+      {/* SECCIÓN 1: COTIZACIÓN PRINCIPAL */}
+      <div className="pdf-section w-[794px] min-h-[1123px] bg-white text-slate-800 font-sans mx-auto shadow-2xl flex flex-col relative overflow-hidden">
         
         {/* HEADER CORPORATIVO PREMIUM */}
         <div className="bg-slate-900 text-white px-10 py-8 relative">
@@ -104,31 +104,8 @@ export const PdfTemplate: React.FC<PdfTemplateProps> = ({ client, cart, subtotal
             </div>
           </div>
         </div>
-        
-        {/* ANEXO FOTOGRÁFICO Y PIE DE PÁGINA (Siempre al fondo) */}
+               {/* PIE DE PÁGINA DE LA COTIZACIÓN (Siempre al fondo) */}
         <div className="mt-auto">
-          {/* FOTOS */}
-          {cart.length > 0 && (
-            <div className="px-10 mb-6">
-              <h3 className="text-[10px] uppercase font-bold tracking-widest text-slate-400 border-b border-slate-200 pb-2 mb-4">Anexo Visual</h3>
-              <div className="flex gap-4 overflow-hidden justify-start">
-                {cart.slice(0, 5).map((item, idx) => (
-                  <div key={idx} className="w-24 flex flex-col items-center">
-                    <div className="h-20 w-20 bg-white border border-slate-100 rounded-lg p-1 shadow-sm flex items-center justify-center mb-1 relative">
-                      <img src={getCloudinaryUrl(item.producto.codigo, item.producto.producto)} alt="" className="max-h-full max-w-full object-contain mix-blend-multiply" crossOrigin="anonymous" />
-                    </div>
-                    <p className="text-[9px] font-mono text-center text-slate-500 w-full break-words leading-normal pb-1 px-1">{item.producto.codigo}</p>
-                  </div>
-                ))}
-                {cart.length > 5 && (
-                  <div className="w-20 h-20 flex items-center justify-center bg-slate-50 rounded-lg border border-slate-100 shadow-sm text-xs font-bold text-slate-400">
-                    +{cart.length - 5}
-                  </div>
-                )}
-              </div>
-            </div>
-          )}
-
           {/* CONDICIONES Y PAGOS */}
           <div className="bg-slate-900 text-white px-10 py-6 grid grid-cols-2 gap-8 text-[10px]">
             <div>
@@ -164,8 +141,43 @@ export const PdfTemplate: React.FC<PdfTemplateProps> = ({ client, cart, subtotal
             </div>
           </div>
         </div>
-
       </div>
+
+      {/* SECCIÓN 2: ANEXO VISUAL (En página separada) */}
+      {cart.length > 0 && (
+        <div className="pdf-section w-[794px] min-h-[1123px] bg-white text-slate-800 font-sans mx-auto shadow-2xl flex flex-col relative overflow-hidden">
+          {/* HEADER DEL ANEXO */}
+          <div className="bg-slate-900 text-white px-10 py-8 relative">
+            <div className="absolute top-0 right-0 w-64 h-full bg-indigo-600 opacity-20 transform skew-x-12 translate-x-10"></div>
+            <div className="flex justify-between items-center relative z-10">
+              <div>
+                <h3 className="text-4xl font-black tracking-tighter mb-1">ANEXO VISUAL</h3>
+                <h4 className="text-[10px] font-bold tracking-[0.3em] text-indigo-300">CATÁLOGO DE PRODUCTOS COTIZADOS</h4>
+              </div>
+              <div className="text-right">
+                <p className="font-mono font-bold text-indigo-400 mt-1">{cotNumber}</p>
+              </div>
+            </div>
+          </div>
+
+          {/* GRID DE IMÁGENES GRANDES */}
+          <div className="px-10 py-10 flex-grow">
+            <div className="grid grid-cols-2 gap-x-10 gap-y-12">
+              {cart.map((item, idx) => (
+                <div key={idx} className="flex flex-col items-center">
+                  <div className="h-56 w-full bg-white border border-slate-200 rounded-2xl p-4 shadow-sm flex items-center justify-center mb-4 relative">
+                    <img src={getCloudinaryUrl(item.producto.codigo, item.producto.producto)} alt="" className="max-h-full max-w-full object-contain mix-blend-multiply" crossOrigin="anonymous" />
+                  </div>
+                  <p className="text-sm font-bold text-slate-800 text-center uppercase tracking-wide leading-snug">{item.producto.producto}</p>
+                  <p className="text-xs font-mono text-slate-500 mt-2">{item.producto.codigo}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="mt-auto bg-slate-900 h-6 w-full"></div>
+        </div>
+      )}
     </div>
   );
 };
