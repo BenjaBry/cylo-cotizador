@@ -458,7 +458,7 @@ export default function Home() {
             
             {/* Contenedor del PDF con Zoom escalado */}
             <div className="flex-1 overflow-auto bg-slate-800/50 p-8 flex justify-center custom-scrollbar">
-              <div className="transform scale-[0.6] md:scale-75 lg:scale-90 origin-top bg-transparent relative">
+              <div id="pdf-scale-wrapper" className="transform scale-[0.6] md:scale-75 lg:scale-90 origin-top bg-transparent relative transition-transform duration-300">
                 <PdfTemplate 
                   client={client} 
                   cart={cart} 
@@ -497,18 +497,6 @@ export default function Home() {
         <span className="text-sm font-semibold">{toast.msg}</span>
       </div>
 
-      {/* OFFSCREEN RENDER FOR ACTUAL PDF EXPORT (Fully rendered by browser to avoid text squishing, but out of sight) */}
-      <div className="fixed top-[200vh] left-[-9999px] opacity-0 pointer-events-none">
-        <PdfTemplate 
-          client={client} 
-          cart={cart} 
-          subtotal={subtotal} 
-          discount={discount} 
-          total={total} 
-          shippingType={shippingType}
-          cotNumber={cotNumber}
-        />
-      </div>
     </div>
   );
 }

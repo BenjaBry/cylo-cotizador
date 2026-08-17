@@ -3,10 +3,26 @@ import html2canvas from 'html2canvas';
 
 export const generatePDF = async (elementId: string, fileName: string) => {
   const element = document.getElementById(elementId);
+  const scaleWrapper = document.getElementById('pdf-scale-wrapper');
+  
   if (!element) {
     console.error(`Element with id ${elementId} not found`);
     return;
   }
+
+  let originalTransform = '';
+  let originalTransition = '';
+
+  if (scaleWrapper) {
+    originalTransform = scaleWrapper.style.transform;
+    originalTransition = scaleWrapper.style.transition;
+    // Quitamos transición y escala para evitar animaciones molestas y aplastamiento de texto
+    scaleWrapper.style.transition = 'none';
+    scaleWrapper.style.transform = 'none';
+  }
+
+  // Pequeña pausa para asegurar que el navegador recalculó los espacios en blanco sin la escala
+  await new Promise(resolve => setTimeout(resolve, 100));
 
   try {
     const canvas = await html2canvas(element, {
@@ -54,5 +70,13 @@ export const generatePDF = async (elementId: string, fileName: string) => {
     pdf.save(`${fileName}.pdf`);
   } catch (error) {
     console.error("Error generating PDF", error);
+  } finally {
+    if (scaleWrapper) {
+      scaleWrapper.style.transform = originalTransform;
+      // Pequeña pausa para devolver la transición y que no anime el regreso
+      setTimeout(() => {
+        scaleWrapper.style.transition = originalTransition;
+      }, 50);
+    }
   }
 };
