@@ -478,8 +478,8 @@ export default function Home() {
               </button>
               <button onClick={() => {
                 showToast("Generando PDF Premium...");
-                setTimeout(() => {
-                  generatePDF('pdf-template', cotNumber);
+                setTimeout(async () => {
+                  await generatePDF('pdf-template', cotNumber);
                   setShowPreviewModal(false);
                 }, 100);
               }} className="px-8 py-3 bg-indigo-600 hover:bg-indigo-500 text-white font-bold rounded-xl shadow-lg shadow-indigo-500/30 flex items-center gap-2 transition-transform active:scale-95">
