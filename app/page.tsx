@@ -14,6 +14,7 @@ interface Producto {
   precio_interior?: number;
   precio_ciudad?: number;
   descuento_ciudad?: number;
+  unidades?: number;
 }
 
 interface CartItem {
@@ -34,6 +35,7 @@ export default function Home() {
   const [client, setClient] = useState({ name: '', nit: '', address: '', deliveryTime: '' });
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [toast, setToast] = useState<{ msg: string, visible: boolean }>({ msg: '', visible: false });
+  const [showPreviewModal, setShowPreviewModal] = useState(false);
 
   // --- INIT & PERSISTENCE ---
   useEffect(() => {
@@ -77,17 +79,11 @@ export default function Home() {
       precio_interior: p.precio_interior || p.precio_unitario,
       precio_ciudad: p.precio_ciudad || p.precio_unitario,
       descuento_ciudad: p.descuento_ciudad || 0,
+      unidades: p.unidades || 1,
     }));
   }, []);
 
-  const categories = useMemo(() => {
-    const cats = new Set<string>(['TODO']);
-    productos.forEach(p => {
-      const prefix = (p.codigo || '').split('-')[0];
-      if (prefix) cats.add(prefix);
-    });
-    return Array.from(cats).sort();
-  }, [productos]);
+  const categories = ['TODO', 'VASOS', 'CONTENEDORES', 'PLATOS', 'CUBIERTOS', 'BOLSAS', 'OTROS'];
 
   const filteredProducts = useMemo(() => {
     return productos.filter(p => {
@@ -95,7 +91,19 @@ export default function Home() {
       const codStr = (p.codigo || '').toLowerCase();
       const searchStr = search.toLowerCase();
       const matchesSearch = prodStr.includes(searchStr) || codStr.includes(searchStr);
-      const matchesCategory = categoryFilter === 'TODO' || (p.codigo || '').startsWith(categoryFilter);
+      
+      let matchesCategory = false;
+      if (categoryFilter === 'TODO') matchesCategory = true;
+      else if (categoryFilter === 'VASOS' && prodStr.includes('vaso')) matchesCategory = true;
+      else if (categoryFilter === 'CONTENEDORES' && prodStr.includes('contenedor')) matchesCategory = true;
+      else if (categoryFilter === 'PLATOS' && prodStr.includes('plato')) matchesCategory = true;
+      else if (categoryFilter === 'CUBIERTOS' && (prodStr.includes('cubierto') || prodStr.includes('cuchara') || prodStr.includes('tenedor') || prodStr.includes('cuchillo'))) matchesCategory = true;
+      else if (categoryFilter === 'BOLSAS' && prodStr.includes('bolsa')) matchesCategory = true;
+      else if (categoryFilter === 'OTROS') {
+        const isKnown = prodStr.includes('vaso') || prodStr.includes('contenedor') || prodStr.includes('plato') || prodStr.includes('cubierto') || prodStr.includes('cuchara') || prodStr.includes('tenedor') || prodStr.includes('cuchillo') || prodStr.includes('bolsa');
+        matchesCategory = !isKnown;
+      }
+      
       return matchesSearch && matchesCategory;
     });
   }, [productos, search, categoryFilter]);
@@ -256,7 +264,7 @@ export default function Home() {
                 placeholder="Buscar SKU o nombre..." 
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                className={`w-full pl-10 pr-4 py-2 text-sm border rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none transition-all ${darkMode ? 'bg-slate-900 border-slate-700 text-white' : 'bg-white border-slate-300'}`}
+                className={`w-full pl-10 pr-4 py-2 text-sm border rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none transition-all ${darkMode ? 'bg-slate-900 border-slate-700 text-white' : 'bg-white border-slate-300 text-slate-900'}`}
               />
             </div>
             <div className="flex gap-2 overflow-x-auto pb-2 custom-scrollbar">
@@ -277,33 +285,35 @@ export default function Home() {
             <table className="w-full text-left text-sm whitespace-nowrap">
               <thead className={`sticky top-0 z-10 backdrop-blur-md ${darkMode ? 'bg-slate-900/90 text-slate-400' : 'bg-white/90 text-slate-500'}`}>
                 <tr>
-                  <th className="px-6 py-4 font-semibold w-16">Img</th>
-                  <th className="px-6 py-4 font-semibold w-32">SKU</th>
-                  <th className="px-6 py-4 font-semibold">Producto</th>
-                  <th className="px-6 py-4 font-semibold w-32 text-right">Precio Base</th>
-                  <th className="px-6 py-4 font-semibold w-24 text-center">Acción</th>
+                  <th className="px-4 py-3 font-semibold w-12">Img</th>
+                  <th className="px-4 py-3 font-semibold w-28">SKU</th>
+                  <th className="px-4 py-3 font-semibold">Producto</th>
+                  <th className="px-4 py-3 font-semibold w-24 text-center">Unids/Caja</th>
+                  <th className="px-4 py-3 font-semibold w-28 text-right">Precio Base</th>
+                  <th className="px-4 py-3 font-semibold w-16 text-center">Acción</th>
                 </tr>
               </thead>
               <tbody className={`divide-y ${darkMode ? 'divide-slate-800' : 'divide-slate-100'}`}>
                 {filteredProducts.slice(0, 150).map((p, i) => (
                   <tr key={i} className={`group transition-colors ${darkMode ? 'hover:bg-slate-800/50' : 'hover:bg-slate-50'}`}>
-                    <td className="px-6 py-3">
+                    <td className="px-4 py-2">
                       <div 
-                        className={`w-12 h-12 rounded-xl flex items-center justify-center overflow-hidden relative cursor-pointer border ${darkMode ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-200'}`}
+                        className={`w-10 h-10 rounded-lg flex items-center justify-center overflow-hidden relative cursor-pointer border shadow-sm ${darkMode ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-200'}`}
                         onClick={() => setSelectedImage(getCloudinaryUrl(p.codigo, p.producto))}
                       >
                         <Image src={getCloudinaryUrl(p.codigo, p.producto)} alt="IMG" fill style={{ objectFit: 'contain' }} unoptimized className="opacity-80 group-hover:opacity-100 transition-opacity group-hover:scale-110 duration-300" />
                       </div>
                     </td>
-                    <td className="px-6 py-3 font-mono text-xs opacity-70">{p.codigo}</td>
-                    <td className="px-6 py-3 font-medium whitespace-normal min-w-[250px]">{p.producto}</td>
-                    <td className="px-6 py-3 font-bold text-right">Q{p.precio_interior?.toFixed(2)}</td>
-                    <td className="px-6 py-3 text-center">
+                    <td className="px-4 py-2 font-mono text-[11px] opacity-70">{p.codigo}</td>
+                    <td className="px-4 py-2 font-medium whitespace-normal min-w-[200px] text-xs leading-snug">{p.producto}</td>
+                    <td className="px-4 py-2 text-center text-xs opacity-70">{p.unidades}</td>
+                    <td className="px-4 py-2 font-bold text-right text-xs">Q{p.precio_interior?.toFixed(2)}</td>
+                    <td className="px-4 py-2 text-center">
                       <button 
                         onClick={() => addToCart(p)}
-                        className="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-indigo-50 text-indigo-600 hover:bg-indigo-600 hover:text-white transition-all shadow-sm"
+                        className="inline-flex items-center justify-center w-7 h-7 rounded-md bg-indigo-50 text-indigo-600 hover:bg-indigo-600 hover:text-white transition-all shadow-sm"
                       >
-                        <Plus className="w-4 h-4" />
+                        <Plus className="w-3 h-3" />
                       </button>
                     </td>
                   </tr>
@@ -409,14 +419,13 @@ export default function Home() {
 
             <button 
               onClick={() => {
-                showToast("Generando PDF Pixel-Perfect...");
-                setTimeout(() => generatePDF('pdf-template', client.name), 100);
+                setShowPreviewModal(true);
               }}
               disabled={cart.length === 0}
               className="w-full py-3.5 bg-indigo-600 hover:bg-indigo-500 disabled:bg-slate-500 disabled:opacity-50 text-white font-black rounded-xl shadow-lg shadow-indigo-500/30 flex items-center justify-center gap-2 transition-all"
             >
               <FileDown className="w-5 h-5" />
-              Generar Cotización PDF Oficial
+              Ver Vista Previa y Exportar PDF
             </button>
           </div>
         </div>
@@ -424,10 +433,60 @@ export default function Home() {
 
       {/* LIGHTBOX MODAL */}
       {selectedImage && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-4 animate-in fade-in duration-200" onClick={() => setSelectedImage(null)}>
+        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/80 backdrop-blur-md p-4 animate-in fade-in duration-200" onClick={() => setSelectedImage(null)}>
           <div className="relative w-full max-w-4xl aspect-square md:aspect-video bg-white/5 rounded-2xl overflow-hidden shadow-2xl" onClick={e => e.stopPropagation()}>
             <button onClick={() => setSelectedImage(null)} className="absolute top-4 right-4 z-10 p-2 bg-black/50 hover:bg-black text-white rounded-full transition-colors"><X className="w-6 h-6" /></button>
             <Image src={selectedImage} alt="Zoom" fill style={{ objectFit: 'contain' }} unoptimized className="animate-in zoom-in-95 duration-300" />
+          </div>
+        </div>
+      )}
+
+      {/* PDF PREVIEW MODAL */}
+      {showPreviewModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 md:p-8 animate-in fade-in duration-200">
+          <div className="bg-slate-900 border border-slate-700 w-full max-w-[900px] h-full max-h-[95vh] rounded-3xl shadow-2xl flex flex-col overflow-hidden animate-in zoom-in-95 duration-200">
+            {/* Header Modal */}
+            <div className="flex justify-between items-center p-6 border-b border-slate-800 bg-slate-950/50">
+              <div>
+                <h3 className="text-xl font-bold text-white">Vista Previa de Cotización</h3>
+                <p className="text-sm text-slate-400">Verifica el diseño premium antes de exportar</p>
+              </div>
+              <button onClick={() => setShowPreviewModal(false)} className="p-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-full transition-colors">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            
+            {/* Contenedor del PDF con Zoom escalado */}
+            <div className="flex-1 overflow-auto bg-slate-800/50 p-8 flex justify-center custom-scrollbar">
+              <div className="transform scale-[0.6] md:scale-75 lg:scale-90 origin-top bg-transparent relative">
+                <PdfTemplate 
+                  client={client} 
+                  cart={cart} 
+                  subtotal={subtotal} 
+                  discount={discount} 
+                  total={total} 
+                  shippingType={shippingType}
+                  cotNumber={cotNumber}
+                />
+              </div>
+            </div>
+            
+            {/* Footer Modal */}
+            <div className="p-6 border-t border-slate-800 bg-slate-950 flex justify-end gap-4">
+              <button onClick={() => setShowPreviewModal(false)} className="px-6 py-3 font-semibold text-slate-300 hover:text-white transition-colors">
+                Cancelar
+              </button>
+              <button onClick={() => {
+                showToast("Generando PDF Premium...");
+                setTimeout(() => {
+                  generatePDF('pdf-template', cotNumber);
+                  setShowPreviewModal(false);
+                }, 100);
+              }} className="px-8 py-3 bg-indigo-600 hover:bg-indigo-500 text-white font-bold rounded-xl shadow-lg shadow-indigo-500/30 flex items-center gap-2 transition-transform active:scale-95">
+                <FileDown className="w-5 h-5" />
+                Confirmar y Descargar PDF
+              </button>
+            </div>
           </div>
         </div>
       )}
@@ -438,16 +497,18 @@ export default function Home() {
         <span className="text-sm font-semibold">{toast.msg}</span>
       </div>
 
-      {/* HIDDEN PDF TEMPLATE */}
-      <PdfTemplate 
-        client={client} 
-        cart={cart} 
-        subtotal={subtotal} 
-        discount={discount} 
-        total={total} 
-        shippingType={shippingType}
-        cotNumber={cotNumber}
-      />
+      {/* HIDDEN RENDER FOR ACTUAL PDF EXPORT (Only used by html2canvas if preview is not rendering it) */}
+      <div className="hidden">
+        <PdfTemplate 
+          client={client} 
+          cart={cart} 
+          subtotal={subtotal} 
+          discount={discount} 
+          total={total} 
+          shippingType={shippingType}
+          cotNumber={cotNumber}
+        />
+      </div>
     </div>
   );
 }

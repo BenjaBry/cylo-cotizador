@@ -1,7 +1,7 @@
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 
-export const generatePDF = async (elementId: string, clientName: string) => {
+export const generatePDF = async (elementId: string, fileName: string) => {
   const element = document.getElementById(elementId);
   if (!element) {
     console.error(`Element with id ${elementId} not found`);
@@ -53,7 +53,7 @@ export const generatePDF = async (elementId: string, clientName: string) => {
        pdf.addImage(imgData, 'JPEG', 0, 0, pdfWidth, pdfHeight);
     }
 
-    pdf.save(`Cotizacion_CYLO_${clientName ? clientName.replace(/\s+/g, '_') : 'Cliente'}.pdf`);
+    pdf.save(`${fileName}.pdf`);
   } catch (error) {
     console.error("Error generating PDF", error);
   } finally {
