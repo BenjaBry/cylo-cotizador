@@ -255,16 +255,16 @@ export default function Home() {
 
           
           {/* Toolbar */}
-          <div className={`p-4 border-b flex gap-4 ${darkMode ? 'bg-slate-950/50 border-slate-800' : 'bg-slate-50 border-slate-200'}`}>
+          <div className={`p-4 border-b flex flex-col md:flex-row gap-4 ${darkMode ? 'bg-slate-950/50 border-slate-800' : 'bg-slate-50 border-slate-200'}`}>
             <div className="relative flex-1 max-w-md">
-              <Search className="w-5 h-5 absolute left-3 top-1/2 transform -translate-y-1/2 opacity-50" />
+              <Search className="w-6 h-6 absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400" />
               <input 
                 ref={searchInputRef}
                 type="text" 
                 placeholder="Buscar SKU o nombre..." 
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                className={`w-full pl-10 pr-4 py-2 text-sm border rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none transition-all ${darkMode ? 'bg-slate-900 border-slate-700 text-white' : 'bg-white border-slate-300 text-slate-900'}`}
+                className={`w-full pl-12 pr-4 py-3 text-base border rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none transition-all ${darkMode ? 'bg-slate-900 border-slate-700 text-white' : 'bg-white border-slate-300 text-slate-900'}`}
               />
             </div>
             <div className="flex gap-2 overflow-x-auto pb-2 custom-scrollbar">

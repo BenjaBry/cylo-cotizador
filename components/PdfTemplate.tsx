@@ -21,7 +21,7 @@ export const PdfTemplate: React.FC<PdfTemplateProps> = ({ client, cart, subtotal
   };
 
   return (
-    <div id="pdf-template" className="hidden">
+    <div id="pdf-template">
       {/* Contenedor estricto A4 Vertical (794x1123px a 96DPI) */}
       <div className="w-[794px] min-h-[1123px] bg-white text-slate-800 font-sans mx-auto shadow-2xl flex flex-col relative overflow-hidden">
         
