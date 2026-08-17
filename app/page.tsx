@@ -73,9 +73,8 @@ export default function Home() {
   const productos: Producto[] = useMemo(() => {
     return (productosData as any[]).map(p => ({
       ...p,
-      // SIMULACIÓN DE COLUMNAS HASTA QUE SE ACTUALICE EL EXCEL
       precio_interior: p.precio_interior || p.precio_unitario,
-      precio_ciudad: p.precio_ciudad || (p.precio_unitario * 0.95), // 5% descuento aprox simulado
+      precio_ciudad: p.precio_ciudad || (p.precio_unitario * 0.95), // 5% descuento simulado si la columna no existe aún
     }));
   }, []);
 
@@ -130,26 +129,47 @@ export default function Home() {
   // --- FINANCIAL CALCS ---
   const subtotal = cart.reduce((sum, item) => sum + (item.unitPrice * item.cantidad), 0);
   
-  // Descuento solo aplica si se elige CIUDAD
   let discount = 0;
   if (shippingType === 'ciudad') {
     discount = cart.reduce((sum, item) => {
-      const discountPerUnit = item.producto.precio_interior! - item.producto.precio_ciudad!;
+      const pInterior = item.producto.precio_interior || item.producto.precio_unitario;
+      const pCiudad = item.producto.precio_ciudad || (item.producto.precio_unitario * 0.95);
+      const discountPerUnit = pInterior - pCiudad;
       return sum + (discountPerUnit > 0 ? discountPerUnit * item.cantidad : 0);
     }, 0);
   }
-  
+
   const total = subtotal - discount;
-  const cotNumber = `COT-${new Date().getTime().toString().slice(-8)}`;
+
+  const cotNumber = useMemo(() => {
+    const d = new Date();
+    const dd = String(d.getDate()).padStart(2, '0');
+    const mm = String(d.getMonth() + 1).padStart(2, '0');
+    const aaaa = d.getFullYear();
+    const num = String(Math.floor(Math.random() * 9000) + 1000); // 4 dígitos
+    return `COT-${dd}${mm}${aaaa}${num}`;
+  }, []);
 
   // --- EXPORTS ---
   const exportToCSV = () => {
-    let csv = "Codigo,Producto,Cantidad,Precio Unitario,Subtotal\n";
+    let csv = "DETALLES DE COTIZACION\n\n";
+    csv += `No. Cotizacion:,"${cotNumber}"\n`;
+    csv += `Cliente:,"${client.name || 'Cliente de Mostrador'}"\n`;
+    csv += `NIT:,"${client.nit || 'C/F'}"\n`;
+    csv += `Direccion:,"${client.address || 'N/A'}"\n`;
+    csv += `Tiempo de entrega:,"${client.deliveryTime || 'Inmediato'}"\n`;
+    csv += `Tipo de envio:,"${shippingType === 'ciudad' ? 'Ciudad Capital' : 'Interior de la Republica'}"\n\n`;
+
+    csv += "Codigo,Producto,Cantidad,Precio Unitario,Subtotal\n";
     cart.forEach(item => {
-      csv += `${item.producto.codigo},"${item.producto.producto}",${item.cantidad},${item.unitPrice},${item.unitPrice * item.cantidad}\n`;
+      csv += `${item.producto.codigo},"${item.producto.producto}",${item.cantidad},Q${item.unitPrice.toFixed(2)},Q${(item.unitPrice * item.cantidad).toFixed(2)}\n`;
     });
-    csv += `,,,,Total,${total}`;
-    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+
+    csv += `\n,,,Subtotal Base:,Q${subtotal.toFixed(2)}\n`;
+    csv += `,,,Descuento:,-Q${discount.toFixed(2)}\n`;
+    csv += `,,,TOTAL FINAL:,Q${total.toFixed(2)}\n`;
+
+    const blob = new Blob([new Uint8Array([0xEF, 0xBB, 0xBF]), csv], { type: 'text/csv;charset=utf-8;' }); // BOM para Excel UTF-8
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.href = url;
@@ -361,24 +381,44 @@ export default function Home() {
           {/* Checkout Footer */}
           <div className={`p-5 rounded-b-2xl border-t ${darkMode ? 'bg-slate-950 border-slate-800' : 'bg-slate-50 border-slate-200'}`}>
             
-            {shippingType === 'ciudad' && discount > 0 && (
-              <>
-                <div className="flex justify-between items-center mb-1 text-sm opacity-70">
-                  <span>Subtotal Base</span>
-                  <span>Q{subtotal.toFixed(2)}</span>
-                </div>
-                <div className="flex justify-between items-center mb-3 text-sm text-green-500 font-bold">
-                  <span>Descuento (Capital)</span>
+            {/* Opciones de Envío */}
+            <div className="mb-4 bg-slate-50 dark:bg-slate-800/50 p-3 rounded-xl border border-slate-200 dark:border-slate-700">
+              <label className="block text-xs font-bold text-slate-500 mb-2">Tipo de Envío / Precio Aplicado</label>
+              <div className="flex gap-2">
+                <button 
+                  onClick={() => setShippingType('interior')}
+                  className={`flex-1 py-2 text-xs font-bold rounded-lg transition-colors ${shippingType === 'interior' ? 'bg-indigo-600 text-white' : 'bg-slate-200 dark:bg-slate-700 hover:bg-slate-300'}`}
+                >
+                  Interior (Normal)
+                </button>
+                <button 
+                  onClick={() => setShippingType('ciudad')}
+                  className={`flex-1 py-2 text-xs font-bold rounded-lg transition-colors ${shippingType === 'ciudad' ? 'bg-indigo-600 text-white' : 'bg-slate-200 dark:bg-slate-700 hover:bg-slate-300'}`}
+                >
+                  Ciudad (Descuento)
+                </button>
+              </div>
+            </div>
+
+            <div className="space-y-2 text-sm mb-4">
+              <div className="flex justify-between font-medium">
+                <span className="text-slate-500">Subtotal</span>
+                <span>Q{subtotal.toFixed(2)}</span>
+              </div>
+              {discount > 0 && (
+                <div className="flex justify-between font-bold text-green-500">
+                  <span>Descuento</span>
                   <span>- Q{discount.toFixed(2)}</span>
                 </div>
-              </>
-            )}
-
-            <div className="flex justify-between items-end border-t border-slate-200 dark:border-slate-800 pt-3 mb-6">
-              <div>
-                <span className="text-2xl font-black">Q{total.toFixed(2)}</span>
-                <p className="text-[10px] text-green-500 font-bold uppercase tracking-wider">Impuestos Incluidos</p>
+              )}
+              <div className="flex justify-between text-lg font-black pt-2 border-t border-slate-200 dark:border-slate-700">
+                <span>TOTAL</span>
+                <span className="text-indigo-600 dark:text-indigo-400">Q{total.toFixed(2)}</span>
               </div>
+            </div>
+
+            <div className="flex justify-between items-center mb-6">
+              <p className="text-[10px] text-green-500 font-bold uppercase tracking-wider">Impuestos Incluidos</p>
               <div className="flex gap-2">
                 <button onClick={exportToCSV} title="Exportar CSV" className="p-2 rounded-lg bg-green-100 text-green-700 hover:bg-green-200 transition"><FileSpreadsheet className="w-5 h-5"/></button>
                 <button onClick={sendWhatsApp} title="Enviar WhatsApp" className="p-2 rounded-lg bg-green-500 text-white hover:bg-green-600 transition"><MessageCircle className="w-5 h-5"/></button>

@@ -22,8 +22,8 @@ export const PdfTemplate: React.FC<PdfTemplateProps> = ({ client, cart, subtotal
 
   return (
     <div id="pdf-template" className="hidden">
-      {/* Contenedor A4 para forzar proporciones exactas de papel (210mm x 297mm) */}
-      <div className="w-[794px] bg-white text-gray-900 font-sans mx-auto shadow-2xl pb-10" style={{ minHeight: '1123px' }}>
+      {/* Contenedor fluido sin altura mínima forzada para evitar espacios en blanco enormes */}
+      <div className="w-[794px] bg-white text-gray-900 font-sans mx-auto shadow-2xl pb-10">
         
         {/* HEADER */}
         <div className="bg-[#0B132B] text-white flex justify-between items-center px-8 py-6 h-[100px]">
@@ -59,26 +59,26 @@ export const PdfTemplate: React.FC<PdfTemplateProps> = ({ client, cart, subtotal
             <span className="text-xs text-gray-500">*Precios incluyen impuestos</span>
           </div>
           
-          <table className="w-full text-xs text-left border-collapse">
+          <table className="w-full text-sm text-left border-collapse">
             <thead>
-              <tr className="border-y-2 border-gray-900">
-                <th className="py-2 px-2 w-[15%]">MODELO</th>
-                <th className="py-2 px-2 w-[35%]">PRODUCTO</th>
-                <th className="py-2 px-2 text-center w-[10%]">CANTIDAD</th>
-                <th className="py-2 px-2 text-right w-[15%]">PRECIO UNIT</th>
-                <th className="py-2 px-2 text-right w-[15%]">SUBTOTAL</th>
-                <th className="py-2 px-2 text-center w-[10%]">NOTA</th>
+              <tr className="border-y-2 border-[#0B132B] bg-gray-50">
+                <th className="py-3 px-3 w-[15%] font-black text-[#0B132B]">MODELO</th>
+                <th className="py-3 px-3 w-[35%] font-black text-[#0B132B]">PRODUCTO</th>
+                <th className="py-3 px-3 text-center w-[10%] font-black text-[#0B132B]">CANTIDAD</th>
+                <th className="py-3 px-3 text-right w-[15%] font-black text-[#0B132B]">PRECIO UNIT</th>
+                <th className="py-3 px-3 text-right w-[15%] font-black text-[#0B132B]">SUBTOTAL</th>
+                <th className="py-3 px-3 text-center w-[10%] font-black text-[#0B132B]">NOTA</th>
               </tr>
             </thead>
             <tbody>
               {cart.map((item, idx) => (
-                <tr key={idx} className="border-b border-gray-200">
-                  <td className="py-3 px-2 font-mono font-bold text-gray-700">{item.producto.codigo}</td>
-                  <td className="py-3 px-2 font-medium">{item.producto.producto}</td>
-                  <td className="py-3 px-2 text-center">{item.cantidad}</td>
-                  <td className="py-3 px-2 text-right">Q{item.unitPrice.toFixed(2)}</td>
-                  <td className="py-3 px-2 text-right">Q{(item.unitPrice * item.cantidad).toFixed(2)}</td>
-                  <td className="py-3 px-2 text-center text-red-600 font-bold text-[10px]">N/A</td>
+                <tr key={idx} className="border-b border-gray-200 hover:bg-gray-50/50">
+                  <td className="py-4 px-3 font-mono font-bold text-gray-700">{item.producto.codigo}</td>
+                  <td className="py-4 px-3 font-semibold text-gray-900">{item.producto.producto}</td>
+                  <td className="py-4 px-3 text-center font-medium">{item.cantidad}</td>
+                  <td className="py-4 px-3 text-right font-medium">Q{item.unitPrice.toFixed(2)}</td>
+                  <td className="py-4 px-3 text-right font-medium">Q{(item.unitPrice * item.cantidad).toFixed(2)}</td>
+                  <td className="py-4 px-3 text-center text-red-600 font-bold text-[11px]">N/A</td>
                 </tr>
               ))}
             </tbody>
@@ -87,19 +87,19 @@ export const PdfTemplate: React.FC<PdfTemplateProps> = ({ client, cart, subtotal
           {/* TOTALS */}
           <div className="flex justify-end mt-4">
             <div className="w-[300px]">
-              {shippingType === 'ciudad' && discount > 0 && (
+              {discount > 0 && (
                 <>
-                  <div className="flex justify-between py-1 border-b border-gray-200 text-sm">
-                    <span className="text-gray-500">Subtotal (Precio Base)</span>
-                    <span>Q{subtotal.toFixed(2)}</span>
+                  <div className="flex justify-between py-2 border-b border-gray-200 text-sm">
+                    <span className="text-gray-500 font-medium">Subtotal (Precio Base)</span>
+                    <span className="font-semibold">Q{subtotal.toFixed(2)}</span>
                   </div>
-                  <div className="flex justify-between py-1 border-b border-gray-200 text-sm text-green-600">
-                    <span className="font-bold">Descuento (Envío Ciudad)</span>
+                  <div className="flex justify-between py-2 border-b border-gray-200 text-sm text-green-600">
+                    <span className="font-bold">Descuento</span>
                     <span className="font-bold">- Q{discount.toFixed(2)}</span>
                   </div>
                 </>
               )}
-              <div className="flex justify-between py-2 border-y-2 border-gray-900 text-base font-black mt-2">
+              <div className="flex justify-between py-3 border-y-2 border-[#0B132B] text-lg font-black mt-2">
                 <span>TOTAL</span>
                 <span>Q{total.toFixed(2)}</span>
               </div>
@@ -119,8 +119,8 @@ export const PdfTemplate: React.FC<PdfTemplateProps> = ({ client, cart, subtotal
           </div>
         </div>
         
-        {/* PAGE BREAK FOR ANNEX */}
-        <div style={{ pageBreakBefore: 'always' }} className="pt-[100px] px-8">
+        {/* IMAGES AND PAYMENT METHODS - FLOWING NATURALLY */}
+        <div className="pt-12 px-8">
           <h3 className="text-lg font-bold text-gray-900 border-b-2 border-gray-900 mb-4">ANEXO (Fotografías)</h3>
           <div className="grid grid-cols-3 gap-6">
             {cart.map((item, idx) => (
