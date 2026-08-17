@@ -255,8 +255,8 @@ export default function Home() {
 
           
           {/* Toolbar */}
-          <div className={`p-4 border-b flex flex-col md:flex-row gap-4 ${darkMode ? 'bg-slate-950/50 border-slate-800' : 'bg-slate-50 border-slate-200'}`}>
-            <div className="relative flex-1 max-w-md">
+          <div className={`p-4 border-b flex flex-col gap-4 ${darkMode ? 'bg-slate-950/50 border-slate-800' : 'bg-slate-50 border-slate-200'}`}>
+            <div className="relative w-full max-w-xl">
               <Search className="w-6 h-6 absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400" />
               <input 
                 ref={searchInputRef}
