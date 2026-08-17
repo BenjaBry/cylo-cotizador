@@ -117,7 +117,7 @@ export const PdfTemplate: React.FC<PdfTemplateProps> = ({ client, cart, subtotal
                     <div className="h-20 w-20 bg-white border border-slate-100 rounded-lg p-1 shadow-sm flex items-center justify-center mb-1 relative">
                       <img src={getCloudinaryUrl(item.producto.codigo, item.producto.producto)} alt="" className="max-h-full max-w-full object-contain mix-blend-multiply" crossOrigin="anonymous" />
                     </div>
-                    <p className="text-[8px] font-mono text-center text-slate-500 w-full truncate">{item.producto.codigo}</p>
+                    <p className="text-[9px] font-mono text-center text-slate-500 w-full break-words leading-normal pb-1 px-1">{item.producto.codigo}</p>
                   </div>
                 ))}
                 {cart.length > 5 && (
