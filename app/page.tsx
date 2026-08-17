@@ -224,16 +224,29 @@ export default function Home() {
   return (
     <div className={`min-h-screen font-sans transition-colors duration-300 ${darkMode ? 'bg-slate-900 text-slate-200' : 'bg-[#F8FAFC] text-slate-800'}`}>
       
-      {/* HEADER */}
-      <header className={`${darkMode ? 'bg-slate-950 border-slate-800' : 'bg-white border-slate-200'} border-b sticky top-0 z-30 transition-colors`}>
-        <div className="max-w-[1800px] mx-auto px-6 h-16 flex justify-between items-center">
-          <div className="flex items-center gap-3">
-            <div className="bg-indigo-600 p-1.5 rounded-lg">
-              <Package className="w-5 h-5 text-white" />
-            </div>
-            <h1 className="text-lg font-bold tracking-wide">CYLO <span className="font-light opacity-70">TopMundial</span></h1>
+      {/* HEADER PRINCIPAL */}
+      <header className={`h-16 border-b flex items-center justify-between px-6 sticky top-0 z-50 gap-8 ${darkMode ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200'}`}>
+        <div className="flex items-center gap-3 shrink-0">
+          <div className="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center shadow-lg shadow-indigo-500/30">
+            <Package className="w-5 h-5 text-white" />
           </div>
-          <div className="flex items-center gap-6">
+          <h1 className="text-xl font-black tracking-tight">CYLO <span className="font-light text-slate-400">TopMundial</span></h1>
+        </div>
+
+        {/* BUSCADOR EN EL HEADER */}
+        <div className="flex-1 max-w-2xl relative">
+          <Search className="w-5 h-5 absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-400" />
+          <input 
+            ref={searchInputRef}
+            type="text" 
+            placeholder="Buscar SKU o nombre del producto..." 
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className={`w-full pl-12 pr-4 py-2 text-sm border rounded-full focus:ring-2 focus:ring-indigo-500 outline-none transition-all shadow-sm ${darkMode ? 'bg-slate-950/50 border-slate-700 text-white' : 'bg-slate-50 border-slate-300 text-slate-900'}`}
+          />
+        </div>
+
+        <div className="flex items-center gap-4 shrink-0">
             <div className="flex items-center gap-2 px-3 py-1 bg-slate-100 dark:bg-slate-800 rounded-full text-xs font-semibold">
               <kbd className="font-mono text-indigo-500">/</kbd> <span className="opacity-70">para buscar</span>
             </div>
@@ -254,20 +267,8 @@ export default function Home() {
         <div className={`flex-1 flex flex-col rounded-2xl border shadow-sm overflow-hidden min-h-[500px] xl:min-h-0 ${darkMode ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200'}`}>
 
           
-          {/* Toolbar */}
-          <div className={`p-4 border-b flex flex-col gap-4 ${darkMode ? 'bg-slate-950/50 border-slate-800' : 'bg-slate-50 border-slate-200'}`}>
-            <div className="relative w-full max-w-xl">
-              <Search className="w-6 h-6 absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400" />
-              <input 
-                ref={searchInputRef}
-                type="text" 
-                placeholder="Buscar SKU o nombre..." 
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                className={`w-full pl-12 pr-4 py-3 text-base border rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none transition-all ${darkMode ? 'bg-slate-900 border-slate-700 text-white' : 'bg-white border-slate-300 text-slate-900'}`}
-              />
-            </div>
-            <div className="flex gap-2 overflow-x-auto pb-2 custom-scrollbar">
+          {/* Toolbar de Categorías */}
+          <div className={`p-4 border-b flex gap-2 overflow-x-auto custom-scrollbar ${darkMode ? 'bg-slate-950/50 border-slate-800' : 'bg-slate-50 border-slate-200'}`}>
               {categories.map(cat => (
                 <button 
                   key={cat} 
