@@ -13,6 +13,7 @@ interface Producto {
   precio_unitario: number;
   precio_interior?: number;
   precio_ciudad?: number;
+  descuento_ciudad?: number;
 }
 
 interface CartItem {
@@ -74,32 +75,28 @@ export default function Home() {
     return (productosData as any[]).map(p => ({
       ...p,
       precio_interior: p.precio_interior || p.precio_unitario,
-      precio_ciudad: p.precio_ciudad || (p.precio_unitario * 0.95), // 5% descuento simulado si la columna no existe aún
+      precio_ciudad: p.precio_ciudad || p.precio_unitario,
+      descuento_ciudad: p.descuento_ciudad || 0,
     }));
   }, []);
 
   const categories = useMemo(() => {
-    const cats = new Set(['TODO']);
+    const cats = new Set<string>(['TODO']);
     productos.forEach(p => {
-      const name = p.producto.toUpperCase();
-      if (name.includes('VASO')) cats.add('VASOS');
-      else if (name.includes('CONTENEDOR')) cats.add('CONTENEDORES');
-      else if (name.includes('PLATO')) cats.add('PLATOS');
-      else if (name.includes('CUBIERTO') || name.includes('CUCHARA') || name.includes('TENEDOR')) cats.add('CUBIERTOS');
-      else if (name.includes('BOLSA')) cats.add('BOLSAS');
-      else cats.add('OTROS');
+      const prefix = (p.codigo || '').split('-')[0];
+      if (prefix) cats.add(prefix);
     });
-    return Array.from(cats);
+    return Array.from(cats).sort();
   }, [productos]);
 
   const filteredProducts = useMemo(() => {
     return productos.filter(p => {
-      const matchSearch = p.producto.toLowerCase().includes(search.toLowerCase()) || p.codigo.toLowerCase().includes(search.toLowerCase());
-      if (categoryFilter === 'TODO') return matchSearch;
-      if (categoryFilter === 'OTROS') return matchSearch && !['VASO','CONTENEDOR','PLATO','CUBIERTO','CUCHARA','TENEDOR','BOLSA'].some(kw => p.producto.toUpperCase().includes(kw));
-      // Truncar la 'S' final para buscar
-      const kw = categoryFilter.replace(/S$/, '');
-      return matchSearch && p.producto.toUpperCase().includes(kw);
+      const prodStr = (p.producto || '').toLowerCase();
+      const codStr = (p.codigo || '').toLowerCase();
+      const searchStr = search.toLowerCase();
+      const matchesSearch = prodStr.includes(searchStr) || codStr.includes(searchStr);
+      const matchesCategory = categoryFilter === 'TODO' || (p.codigo || '').startsWith(categoryFilter);
+      return matchesSearch && matchesCategory;
     });
   }, [productos, search, categoryFilter]);
 
@@ -132,10 +129,8 @@ export default function Home() {
   let discount = 0;
   if (shippingType === 'ciudad') {
     discount = cart.reduce((sum, item) => {
-      const pInterior = item.producto.precio_interior || item.producto.precio_unitario;
-      const pCiudad = item.producto.precio_ciudad || (item.producto.precio_unitario * 0.95);
-      const discountPerUnit = pInterior - pCiudad;
-      return sum + (discountPerUnit > 0 ? discountPerUnit * item.cantidad : 0);
+      const discountPerUnit = item.producto.descuento_ciudad || 0;
+      return sum + (discountPerUnit * item.cantidad);
     }, 0);
   }
 
@@ -240,10 +235,11 @@ export default function Home() {
       </header>
 
       {/* MAIN LAYOUT */}
-      <div className="max-w-[1800px] mx-auto p-6 flex flex-col xl:flex-row gap-6 h-[calc(100vh-4rem)]">
+      <div className="max-w-[1800px] mx-auto p-2 sm:p-6 flex flex-col xl:flex-row gap-6 xl:h-[calc(100vh-4rem)]">
         
         {/* LEFT COLUMN: DataGrid */}
-        <div className={`flex-1 flex flex-col rounded-2xl border shadow-sm overflow-hidden ${darkMode ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200'}`}>
+        <div className={`flex-1 flex flex-col rounded-2xl border shadow-sm overflow-hidden min-h-[500px] xl:min-h-0 ${darkMode ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200'}`}>
+
           
           {/* Toolbar */}
           <div className={`p-4 border-b flex gap-4 ${darkMode ? 'bg-slate-950/50 border-slate-800' : 'bg-slate-50 border-slate-200'}`}>
@@ -313,7 +309,7 @@ export default function Home() {
         </div>
 
         {/* RIGHT COLUMN: Quotation Builder */}
-        <div className={`w-full xl:w-[450px] flex flex-col rounded-2xl border shadow-lg ${darkMode ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200'}`}>
+        <div className={`w-full xl:w-[450px] xl:flex-shrink-0 flex flex-col rounded-2xl border shadow-lg ${darkMode ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200'}`}>
           
           {/* Tabs Envio */}
           <div className="flex p-2 gap-2 border-b border-slate-200 dark:border-slate-800">
@@ -381,25 +377,6 @@ export default function Home() {
           {/* Checkout Footer */}
           <div className={`p-5 rounded-b-2xl border-t ${darkMode ? 'bg-slate-950 border-slate-800' : 'bg-slate-50 border-slate-200'}`}>
             
-            {/* Opciones de Envío */}
-            <div className="mb-4 bg-slate-50 dark:bg-slate-800/50 p-3 rounded-xl border border-slate-200 dark:border-slate-700">
-              <label className="block text-xs font-bold text-slate-500 mb-2">Tipo de Envío / Precio Aplicado</label>
-              <div className="flex gap-2">
-                <button 
-                  onClick={() => setShippingType('interior')}
-                  className={`flex-1 py-2 text-xs font-bold rounded-lg transition-colors ${shippingType === 'interior' ? 'bg-indigo-600 text-white' : 'bg-slate-200 dark:bg-slate-700 hover:bg-slate-300'}`}
-                >
-                  Interior (Normal)
-                </button>
-                <button 
-                  onClick={() => setShippingType('ciudad')}
-                  className={`flex-1 py-2 text-xs font-bold rounded-lg transition-colors ${shippingType === 'ciudad' ? 'bg-indigo-600 text-white' : 'bg-slate-200 dark:bg-slate-700 hover:bg-slate-300'}`}
-                >
-                  Ciudad (Descuento)
-                </button>
-              </div>
-            </div>
-
             <div className="space-y-2 text-sm mb-4">
               <div className="flex justify-between font-medium">
                 <span className="text-slate-500">Subtotal</span>
