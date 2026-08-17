@@ -124,12 +124,17 @@ export default function Home() {
   };
 
   // --- FINANCIAL CALCS ---
-  const subtotal = cart.reduce((sum, item) => sum + (item.unitPrice * item.cantidad), 0);
+  const subtotal = cart.reduce((sum, item) => {
+    const freshProduct = productos.find(p => p.codigo === item.producto.codigo) || item.producto;
+    const basePrice = freshProduct.precio_interior || item.unitPrice;
+    return sum + (basePrice * item.cantidad);
+  }, 0);
   
   let discount = 0;
   if (shippingType === 'ciudad') {
     discount = cart.reduce((sum, item) => {
-      const discountPerUnit = item.producto.descuento_ciudad || 0;
+      const freshProduct = productos.find(p => p.codigo === item.producto.codigo) || item.producto;
+      const discountPerUnit = freshProduct.descuento_ciudad || 0;
       return sum + (discountPerUnit * item.cantidad);
     }, 0);
   }
