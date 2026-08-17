@@ -8,16 +8,14 @@ export const generatePDF = async (elementId: string, fileName: string) => {
     return;
   }
 
-  // Asegurarnos de que el elemento esté visible temporalmente para el render
-  const originalDisplay = element.style.display;
-  element.style.display = 'block';
-
   try {
     const canvas = await html2canvas(element, {
       scale: 2, // Alta resolución
       useCORS: true, // Permitir imágenes de Cloudinary
       logging: false,
-      backgroundColor: '#ffffff'
+      backgroundColor: '#ffffff',
+      windowWidth: 794,
+      width: 794
     });
 
     const imgData = canvas.toDataURL('image/jpeg', 1.0);
@@ -56,8 +54,5 @@ export const generatePDF = async (elementId: string, fileName: string) => {
     pdf.save(`${fileName}.pdf`);
   } catch (error) {
     console.error("Error generating PDF", error);
-  } finally {
-    // Ocultar de nuevo
-    element.style.display = originalDisplay;
   }
 };

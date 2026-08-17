@@ -497,8 +497,8 @@ export default function Home() {
         <span className="text-sm font-semibold">{toast.msg}</span>
       </div>
 
-      {/* HIDDEN RENDER FOR ACTUAL PDF EXPORT (Only used by html2canvas if preview is not rendering it) */}
-      <div className="hidden">
+      {/* OFFSCREEN RENDER FOR ACTUAL PDF EXPORT (Fully rendered by browser to avoid text squishing, but out of sight) */}
+      <div className="fixed top-[200vh] left-[-9999px] opacity-0 pointer-events-none">
         <PdfTemplate 
           client={client} 
           cart={cart} 
